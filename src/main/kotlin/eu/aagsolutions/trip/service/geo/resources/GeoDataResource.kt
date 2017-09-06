@@ -1,10 +1,16 @@
 package eu.aagsolutions.trip.service.geo.resources
 
 import eu.aagsolutions.trip.service.geo.model.GeoPoint
+import eu.aagsolutions.trip.service.geo.model.Trip
 import eu.aagsolutions.trip.service.geo.services.GeoPointService
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import java.util.stream.Collectors
 
 
@@ -12,7 +18,7 @@ import java.util.stream.Collectors
 @RequestMapping("geo")
 class GeoDataResource(val geoPointService: GeoPointService) {
 
-    @GetMapping(value = "/coding", produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @GetMapping(value = "coding", produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
     fun getGeoCodeForAddress(@RequestParam("address") address: String): ResponseEntity<GeoPoint> {
         val geoPoint = geoPointService.findGeoPointForAddress(address)
 
@@ -20,13 +26,25 @@ class GeoDataResource(val geoPointService: GeoPointService) {
     }
 
 
-    @PostMapping(value = "/coding", produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @PostMapping(value = "coding", consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
+            produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
     fun getGeoCodes(@RequestBody addresses: Set<GeoPoint>): ResponseEntity<Set<GeoPoint>> {
-        val geoPoints: Set<GeoPoint> = addresses.stream().map { a -> geoPointService.findGeoPointForAddress(a.address) }
+        val geoPoints: Set<GeoPoint> = addresses.stream()
+                .map { a -> geoPointService.findGeoPointForAddress(a.address) }
                 .collect(Collectors.toSet())
         return ResponseEntity.ok(geoPoints)
     }
 
+    @PostMapping(value = "coding/trip", consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
+            produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    fun getGeoCodesForTrip(@RequestBody trip: Trip): ResponseEntity<Trip> {
+        val stopPoints: Set<GeoPoint> = trip.stopPoints.stream()
+                .map { a -> geoPointService.findGeoPointForAddress(a.address) }
+                .collect(Collectors.toSet())
+        val startPoint = geoPointService.findGeoPointForAddress(trip.startPoint.address)
+        val endPoint = geoPointService.findGeoPointForAddress(trip.endPoint.address)
+        return ResponseEntity.ok(Trip(startPoint, endPoint, stopPoints))
+    }
 
 
 }
