@@ -45,7 +45,7 @@ class GeoDataResource(val geoPointService: GeoPointService) {
                 .collect(Collectors.toSet())
         val startPoint = geoPointService.findGeoPointForAddress(trip.startPoint.address)
         val endPoint = geoPointService.findGeoPointForAddress(trip.endPoint.address)
-        return ResponseEntity.ok(Trip(startPoint, endPoint, stopPoints))
+        return ResponseEntity.ok(Trip(trip.id, startPoint, endPoint, stopPoints))
     }
 
 
