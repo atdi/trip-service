@@ -1,5 +1,6 @@
 package eu.aagsolutions.trip.service.geo.resources
 
+import eu.aagsolutions.trip.service.geo.model.Event
 import eu.aagsolutions.trip.service.geo.model.GeoPoint
 import eu.aagsolutions.trip.service.geo.model.Trip
 import eu.aagsolutions.trip.service.geo.services.GeoPointService
@@ -38,8 +39,9 @@ class GeoDataResource(val geoPointService: GeoPointService) {
     @PostMapping(value = "coding/trip", consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
             produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
     fun getGeoCodesForTrip(@RequestBody trip: Trip): ResponseEntity<Trip> {
-        val stopPoints: Set<GeoPoint> = trip.stopPoints.stream()
-                .map { a -> geoPointService.findGeoPointForAddress(a.address) }
+        val stopPoints: Set<Event> = trip.stopPoints.stream()
+                .map { e -> Event(e.id, geoPointService.findGeoPointForAddress(e.point.address),
+                        e.startDateTime, e.duration, e.tripId) }
                 .collect(Collectors.toSet())
         val startPoint = geoPointService.findGeoPointForAddress(trip.startPoint.address)
         val endPoint = geoPointService.findGeoPointForAddress(trip.endPoint.address)
