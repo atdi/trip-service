@@ -8,4 +8,4 @@ class Event(
         val point: GeoPoint,
         val startDateTime: Date,
         val duration: Int,
-        val tripId: Long)
+        val tripId: UUID)

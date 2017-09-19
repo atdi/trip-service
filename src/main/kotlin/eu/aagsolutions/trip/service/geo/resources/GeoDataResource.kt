@@ -39,7 +39,7 @@ class GeoDataResource(val geoPointService: GeoPointService) {
     @PostMapping(value = "coding/trip", consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
             produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
     fun getGeoCodesForTrip(@RequestBody trip: Trip): ResponseEntity<Trip> {
-        val stopPoints: Set<Event> = trip.stopPoints.stream()
+        val stopPoints: Set<Event> = trip.events.stream()
                 .map { e -> Event(e.id, geoPointService.findGeoPointForAddress(e.point.address),
                         e.startDateTime, e.duration, e.tripId) }
                 .collect(Collectors.toSet())
